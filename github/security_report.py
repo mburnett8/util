@@ -94,4 +94,4 @@ d = get_alerts_summary()
 md = get_alerts_markdown(d)
 
 output_file("security_summary", d)
-output_file("security_summary_md", md, ext="md", is_json=False)
+output_file("security_summary", md, ext="md", is_json=False)
