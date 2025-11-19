@@ -11,3 +11,12 @@ def output_file(name: str, content: str, ext: str = "json", is_json: bool = True
             f.write(json.dumps(content, indent=4))
         else:
             f.write(content)
+
+
+def load_file(name: str, ext: str = "json"):
+    file_name = f"github/output/{name}.{ext}"
+    with open(file_name, "r") as f:
+        if ext == "json":
+            return json.load(f)
+        else:
+            return f.read()
