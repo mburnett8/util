@@ -85,9 +85,7 @@ def get_alerts_summary(use_cache=False):
     return summary_data, cs_categories
 
 
-def get_alerts_markdown(
-    summary_data,
-):
+def get_alerts_markdown(summary_data):
     today = date.today().strftime("%B %d, %Y")
 
     # Define headers
@@ -274,7 +272,14 @@ def markdown_to_pdf(markdown_content, output_path):
                 row_count = 0
                 continue
 
-            col_width = pdf.w / (len(cells) + 1)
+            # Calculate column widths - give more space to the last two columns
+            available_width = pdf.w - 20  # Margins
+            col_widths = [
+                available_width * 0.25,  # Repository
+                available_width * 0.20,  # Dependabot Alerts
+                available_width * 0.275,  # Code Scanning Alerts FE
+                available_width * 0.275,  # Code Scanning Alerts BE
+            ]
             cell_height = 7  # Reduced further to fit more rows
 
             # Set border color and width
@@ -284,16 +289,16 @@ def markdown_to_pdf(markdown_content, output_path):
             # Header row formatting
             if is_header_row:
                 pdf.set_font(font_family, "B", 11)
-                pdf.set_text_color(*colors["white"])  # White text
-                pdf.set_fill_color(*colors["dark_red"])  # Dark red background
+                pdf.set_text_color(*colors["white"])
+                pdf.set_fill_color(*colors["dark_red"])
                 for idx, cell in enumerate(cells):
                     alignment = (
                         "L" if idx == 0 else "C"
                     )  # Left align first column, center rest
                     pdf.cell(
-                        col_width,
+                        col_widths[idx],
                         cell_height,
-                        cell[:20],
+                        cell,
                         border="TB",
                         fill=True,
                         align=alignment,
@@ -304,21 +309,21 @@ def markdown_to_pdf(markdown_content, output_path):
             else:
                 # Alternating row colors (zebra striping)
                 pdf.set_font(font_family, "", 11)
-                pdf.set_text_color(*colors["table_text"])  # Lighter than black
+                pdf.set_text_color(*colors["table_text"])
 
                 if row_count % 2 == 0:
-                    pdf.set_fill_color(*colors["white"])  # White
+                    pdf.set_fill_color(*colors["white"])
                 else:
-                    pdf.set_fill_color(*colors["light_cream"])  # Light cream
+                    pdf.set_fill_color(*colors["light_cream"])
 
                 for idx, cell in enumerate(cells):
                     alignment = (
                         "L" if idx == 0 else "C"
                     )  # Left align first column, center rest
                     pdf.cell(
-                        col_width,
+                        col_widths[idx],
                         cell_height,
-                        cell[:20],
+                        cell,
                         border="TB",
                         fill=True,
                         align=alignment,
