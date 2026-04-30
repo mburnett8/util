@@ -1,0 +1,17 @@
+{
+  "name": "security-audit",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "audit": "node audit.js",
+    "audit:csp": "node audit-csp.js",
+    "audit:mfa": "node audit-mfa.js",
+    "audit:github": "node audit-github.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  }
+}

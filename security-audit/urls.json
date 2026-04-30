@@ -1,0 +1,50 @@
+[
+  {
+    "name": "koh-ksr",
+    "repo": "koh_ksr_app",
+    "environments": {
+      "dev": {
+        "app": "https://koh-ksr-dev-0-web.tribridge-amplifyhr.com/admin/login/",
+        "s3": "https://koh-ksr-dev-0-fst-vib14r0b.s3.amazonaws.com/static/index.html",
+        "csod": "https://kohler-pilot.csod.com/"
+      },
+      "prod": {
+        "app": "https://koh-ksr-prod-0-web.tribridge-amplifyhr.com/admin/login/",
+        "s3": "https://koh-ksr-prod-0-fst-w3jel5cj.s3.us-east-1.amazonaws.com/static/index.html",
+        "csod": "https://kohler.csod.com/"
+      }
+    }
+  },
+  {
+    "name": "cjp-crt",
+    "repo": "cjpia_certificates",
+    "environments": {
+      "dev": {
+        "app": "https://cjp-crt-dev-0-web.tribridge-amplifyhr.com/admin/login/",
+        "s3": "https://cjp-crt-dev-0-app-dxchcm.s3.us-east-1.amazonaws.com/static/index.html",
+        "csod": "https://cjpia-stg.csod.com/"
+      },
+      "prod": {
+        "app": "https://cjp-crt-prod-0-web.tribridge-amplifyhr.com/admin/login/",
+        "s3": "https://cjp-crt-prod-0-app-tsfrda79.s3.us-east-1.amazonaws.com/static/index.html",
+        "csod": "https://cjpia.csod.com/"
+      }
+    }
+  },
+  {
+    "name": "fme-app",
+    "repo": "fresenius",
+    "environments": {
+      "dev": {
+        "app": "https://fme-app-dev-0-web.tribridge-amplifyhr.eu/admin/login/",
+        "s3": "https://fme-app-dev-app-ivdswogf.s3.eu-west-1.amazonaws.com/index.html",
+        "csod": "https://freseniusmedicalcare-pilot.csod.com/"
+      },
+      "prod": {
+        "app": "https://fme-app-prod-0-web.tribridge-amplifyhr.eu/admin/login/",
+        "s3": "https://fme-app-prod-app-i033f1oc.s3.eu-west-1.amazonaws.com/index.html",
+        "csod": "https://freseniusmedicalcare.csod.com/"
+      }
+    }
+  }
+]
