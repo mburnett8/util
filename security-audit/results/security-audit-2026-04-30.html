@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Audit — 2026-04-30</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; max-width: 1200px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+    h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .generated { color: #777; font-size: 0.875rem; margin-top: 0; margin-bottom: 2.5rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #444; border-bottom: 2px solid #e5e5e5; padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+    th { background: #f6f6f6; font-weight: 500; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #e0e0e0; white-space: nowrap; color: #444; }
+    td { padding: 0.45rem 0.75rem; border: 1px solid #e0e0e0; }
+    tr:nth-child(even) td { background: #fafafa; }
+    td:nth-child(n+4) { text-align: center; }
+    iconify-icon.icon { font-size: 1.1rem; vertical-align: middle; }
+    iconify-icon.pass { color: #16a34a; }
+    iconify-icon.fail { color: #dc2626; }
+    iconify-icon.na   { color: #bbb; }
+    iconify-icon.err  { color: #d97706; }
+    .status-badge { display: inline-block; font-size: 0.75rem; font-weight: 500; padding: 2px 8px; border-radius: 4px; }
+    .status-badge.pass { background: #dcfce7; color: #15803d; }
+    .status-badge.fail { background: #fee2e2; color: #b91c1c; }
+    .alert-count { font-weight: 600; }
+    .alert-count.pass { color: #16a34a; }
+    .alert-count.fail { color: #dc2626; }
+    .na   { color: #bbb; }
+    .err  { color: #d97706; font-weight: 600; }
+    .note { font-size: 0.78rem; color: #888; margin-top: 0.5rem; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Security Audit</h1>
+  <p class="generated">Generated: 2026-04-30</p>
+  <section>
+  <h2>CSP Audit</h2>
+  <table>
+    <thead><tr><th>App</th><th>Env</th><th>Endpoint</th><th>Status</th><th>CSP Present</th><th>default/script-src</th><th>No unsafe-inline</th><th>No unsafe-eval</th><th>frame-ancestors</th><th>CSOD Covered</th><th>No Wildcard *</th></tr></thead>
+    <tbody><tr>
+      <td>koh-ksr</td><td>dev</td><td><a href="https://koh-ksr-dev-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+      <td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+      <td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>koh-ksr</td><td>dev</td><td><a href="https://koh-ksr-dev-0-fst-vib14r0b.s3.amazonaws.com/static/index.html" target="_blank">s3</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>koh-ksr</td><td>prod</td><td><a href="https://koh-ksr-prod-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+      <td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+      <td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>koh-ksr</td><td>prod</td><td><a href="https://koh-ksr-prod-0-fst-w3jel5cj.s3.us-east-1.amazonaws.com/static/index.html" target="_blank">s3</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>dev</td><td><a href="https://cjp-crt-dev-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>dev</td><td><a href="https://cjp-crt-dev-0-app-dxchcm.s3.us-east-1.amazonaws.com/static/index.html" target="_blank">s3</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>prod</td><td><a href="https://cjp-crt-prod-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>prod</td><td><a href="https://cjp-crt-prod-0-app-tsfrda79.s3.us-east-1.amazonaws.com/static/index.html" target="_blank">s3</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>dev</td><td><a href="https://fme-app-dev-0-web.tribridge-amplifyhr.eu/admin/login/" target="_blank">app</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>dev</td><td><a href="https://fme-app-dev-app-ivdswogf.s3.eu-west-1.amazonaws.com/index.html" target="_blank">s3</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>prod</td><td><a href="https://fme-app-prod-0-web.tribridge-amplifyhr.eu/admin/login/" target="_blank">app</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>prod</td><td><a href="https://fme-app-prod-app-i033f1oc.s3.eu-west-1.amazonaws.com/index.html" target="_blank">s3</a></td><td><span class="status-badge pass">200</span></td>
+      <td><iconify-icon icon="ph:x-circle-fill"    class="icon fail"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td><td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+      <td><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon></td>
+    </tr></tbody>
+  </table>
+  <p class="note"><iconify-icon icon="ph:minus"             class="icon na"></iconify-icon> indicates the check could not be evaluated because no CSP header was present.</p>
+</section>
+  <section>
+  <h2>MFA Audit</h2>
+  <table>
+    <thead><tr><th>App</th><th>Env</th><th>Endpoint</th><th>Status</th><th>MFA Detected</th></tr></thead>
+    <tbody><tr>
+      <td>koh-ksr</td><td>dev</td><td><a href="https://koh-ksr-dev-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td>
+      <td><span class="status-badge pass">200</span></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>koh-ksr</td><td>prod</td><td><a href="https://koh-ksr-prod-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td>
+      <td><span class="status-badge pass">200</span></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>dev</td><td><a href="https://cjp-crt-dev-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td>
+      <td><span class="status-badge pass">200</span></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>prod</td><td><a href="https://cjp-crt-prod-0-web.tribridge-amplifyhr.com/admin/login/" target="_blank">app</a></td>
+      <td><span class="status-badge pass">200</span></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>dev</td><td><a href="https://fme-app-dev-0-web.tribridge-amplifyhr.eu/admin/login/" target="_blank">app</a></td>
+      <td><span class="status-badge pass">200</span></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>prod</td><td><a href="https://fme-app-prod-0-web.tribridge-amplifyhr.eu/admin/login/" target="_blank">app</a></td>
+      <td><span class="status-badge pass">200</span></td><td><iconify-icon icon="ph:check-circle-fill" class="icon pass"></iconify-icon></td>
+    </tr></tbody>
+  </table>
+  <p class="note">MFA detection is a passive heuristic — the login page HTML is scanned for OTP input fields, two-factor text, and authenticator references. Implementations that only surface the second factor after the first credential step will not be detected here.</p>
+</section>
+  <section>
+  <h2>GitHub Security Alerts</h2>
+  <table>
+    <thead><tr><th>App</th><th>Repository</th><th>Dependabot Alerts</th><th>Code Scanning FE</th><th>Code Scanning BE</th></tr></thead>
+    <tbody><tr>
+      <td>koh-ksr</td><td>koh_ksr_app</td>
+      <td><span class="alert-count fail">0/30</span></td>
+      <td><span class="alert-count pass">0/0</span></td>
+      <td><span class="alert-count pass">0/0</span></td>
+    </tr>
+<tr>
+      <td>cjp-crt</td><td>cjpia_certificates</td>
+      <td><span class="alert-count fail">0/11</span></td>
+      <td><span class="alert-count pass">0/0</span></td>
+      <td><span class="alert-count pass">0/0</span></td>
+    </tr>
+<tr>
+      <td>fme-app</td><td>fresenius</td>
+      <td><span class="alert-count fail">0/23</span></td>
+      <td><span class="alert-count fail">0/1</span></td>
+      <td><span class="alert-count fail">0/2</span></td>
+    </tr></tbody>
+  </table>
+  <p class="note">Results are shown as Critical/High counts. NE = feature not enabled.</p>
+</section>
+</body>
+</html>
