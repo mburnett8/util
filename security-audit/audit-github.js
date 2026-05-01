@@ -30,11 +30,6 @@ function loadJson(name) {
   return JSON.parse(readFileSync(join(OUTPUT_DIR, `${name}.json`), 'utf8'));
 }
 
-function saveMd(name, content) {
-  const path = join(OUTPUT_DIR, `${name}.md`);
-  mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, content);
-}
 
 async function fetchAlerts(endpoint) {
   const res = await fetch(`${API_ORIGIN}${endpoint}`, { headers: HEADERS });
@@ -137,82 +132,19 @@ export async function fetchGithubData(entries, useCache = false) {
 
 // --- Standalone CLI ---
 
-function alertCell(error, enabled, ...counts) {
-  if (error) return 'ERR';
-  if (!enabled) return 'NE';
-  return counts.join('/');
-}
-
-function center(str, width) {
-  const pad = width - str.length;
-  if (pad <= 0) return str;
-  const left = Math.floor(pad / 2);
-  return ' '.repeat(left) + str + ' '.repeat(pad - left);
-}
-
-function buildMarkdownTable(entries, summary) {
-  const today = new Date().toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  });
-
-  const headers = ['App', 'Dependabot Alerts', 'Code Scanning FE', 'Code Scanning BE'];
-
-  const rows = entries
-    .filter(e => e.repo)
-    .map(e => {
-      const data = summary[e.repo];
-      if (!data) return [e.name, '—', '—', '—'];
-      const db = data.dependabot_alerts;
-      const cs = data.codescanning_alerts;
-      return [
-        e.name,
-        alertCell(db.error, db.enabled, db.critical, db.high),
-        alertCell(cs.error, cs.enabled, cs.critical_fe, cs.high_fe),
-        alertCell(cs.error, cs.enabled, cs.critical_be, cs.high_be),
-      ];
-    });
-
-  const colWidths = headers.map(h => h.length);
-  for (const row of rows) {
-    row.forEach((cell, i) => { colWidths[i] = Math.max(colWidths[i], cell.length); });
-  }
-
-  const headerRow = '| ' + headers.map((h, i) => h.padEnd(colWidths[i])).join(' | ') + ' |';
-  const sepRow = '| ' + colWidths.map((w, i) =>
-    i === 0 ? ':' + '-'.repeat(w - 1) : ':' + '-'.repeat(w - 2) + ':'
-  ).join(' | ') + ' |';
-  const dataRows = rows.map(row =>
-    '| ' + row.map((cell, i) => i === 0 ? cell.padEnd(colWidths[i]) : center(cell, colWidths[i])).join(' | ') + ' |'
-  );
-
-  return [
-    '# Security Alerts Summary',
-    '',
-    `*Generated on ${today}*`,
-    '',
-    "Results are shown as Critical/High counts. 'NE' indicates that the feature is Not Enabled for the repository.",
-    '',
-    headerRow,
-    sepRow,
-    ...dataRows,
-  ].join('\n');
-}
-
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const useCache = process.argv.includes('--cache');
-  const urls = JSON.parse(readFileSync(join(__dirname, 'urls.json'), 'utf8'));
+  const environments = JSON.parse(readFileSync(join(__dirname, 'environments.json'), 'utf8'));
 
   if (!TOKEN && !useCache) {
     console.error('Error: GITHUB_TOKEN is not set. Add it to .env in the project root.');
     process.exit(1);
   }
 
-  const repoCount = urls.filter(e => e.repo).length;
+  const repoCount = environments.filter(e => e.repo).length;
   console.log(useCache ? 'Loading from cache...' : `Fetching alerts for ${repoCount} repos...`);
-  const { summary } = await fetchGithubData(urls, useCache);
-  const md = buildMarkdownTable(urls, summary);
-  saveMd('security_summary', md);
+  const { summary } = await fetchGithubData(environments, useCache);
 
   console.log(`\nDone. ${Object.keys(summary).length} repos processed.`);
-  console.log('Report: security-audit/output/github/security_summary.md');
+  console.log('Cache: security-audit/output/github/security_summary.json');
 }

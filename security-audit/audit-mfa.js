@@ -50,8 +50,8 @@ function statusEmoji(code) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const urls = JSON.parse(readFileSync(join(__dirname, 'urls.json'), 'utf8'));
-  for (const row of await fetchMfaData(urls)) {
+  const environments = JSON.parse(readFileSync(join(__dirname, 'environments.json'), 'utf8'));
+  for (const row of await fetchMfaData(environments)) {
     console.log(`\n${'─'.repeat(70)}`);
     console.log(`${row.name} / ${row.envName}`);
     if (row.error) {

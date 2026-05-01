@@ -6,96 +6,7 @@ import { fetchMfaData } from './audit-mfa.js';
 import { fetchGithubData } from './audit-github.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const urls = JSON.parse(readFileSync(join(__dirname, 'urls.json'), 'utf8'));
-
-// --- Helpers ---
-
-function alertCell(error, enabled, ...counts) {
-  if (error) return 'ERR';
-  if (!enabled) return 'NE';
-  return counts.join('/');
-}
-
-function fmt(val) {
-  if (val === null || val === undefined) return '—';
-  return val ? '✅' : '❌';
-}
-
-function statusCell(code, error) {
-  if (error) return '🔴 ERROR';
-  if (code == null) return '🔴 —';
-  return `${code >= 200 && code < 300 ? '🟢' : '🔴'} ${code}`;
-}
-
-// --- Section builders ---
-
-function buildCspSection(results) {
-  const header = '| App | Env | Endpoint | Status | CSP Present | default/script-src | No unsafe-inline | No unsafe-eval | frame-ancestors | CSOD Covered | No Wildcard * |';
-  const sep    = '|---|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|';
-
-  const rows = results.map(row => {
-    const c = row.checks;
-    const endpoint = `[${row.endpoint}](${row.url})`;
-    return `| ${row.name} | ${row.envName} | ${endpoint} | ${statusCell(row.status, row.error)} | ${fmt(c.cspPresent)} | ${fmt(c.scriptSrcDefined)} | ${fmt(c.noUnsafeInline)} | ${fmt(c.noUnsafeEval)} | ${fmt(c.frameAncestorsDefined)} | ${fmt(c.csodCovered)} | ${fmt(c.noWildcard)} |`;
-  });
-
-  return [
-    '## CSP Audit',
-    '',
-    header,
-    sep,
-    ...rows,
-    '',
-    '> `—` indicates the check could not be evaluated because no CSP header was present.',
-  ].join('\n');
-}
-
-function buildMfaSection(results) {
-  const header = '| App | Env | Endpoint | Status | MFA Detected |';
-  const sep    = '|---|---|---|:---:|:---:|';
-
-  const rows = results.map(row =>
-    `| ${row.name} | ${row.envName} | [app](${row.url}) | ${statusCell(row.status, row.error)} | ${fmt(row.mfaDetected)} |`
-  );
-
-  return [
-    '## MFA Audit',
-    '',
-    header,
-    sep,
-    ...rows,
-    '',
-    '> MFA detection is a passive heuristic — the login page HTML is scanned for OTP input fields, two-factor text, and authenticator references. Implementations that only surface the second factor after the first credential step will not be detected here.',
-  ].join('\n');
-}
-
-function buildGithubSection(entries, summary) {
-  const header = '| App | Repository | Dependabot Alerts | Code Scanning FE | Code Scanning BE |';
-  const sep    = '|---|---|:---:|:---:|:---:|';
-
-  const rows = entries
-    .filter(e => e.repo)
-    .map(e => {
-      const data = summary[e.repo];
-      if (!data) return `| ${e.name} | ${e.repo} | — | — | — |`;
-      const db = data.dependabot_alerts;
-      const cs = data.codescanning_alerts;
-      const dbCell = alertCell(db.error, db.enabled, db.critical, db.high);
-      const feCell = alertCell(cs.error, cs.enabled, cs.critical_fe, cs.high_fe);
-      const beCell = alertCell(cs.error, cs.enabled, cs.critical_be, cs.high_be);
-      return `| ${e.name} | ${e.repo} | ${dbCell} | ${feCell} | ${beCell} |`;
-    });
-
-  return [
-    '## GitHub Security Alerts',
-    '',
-    header,
-    sep,
-    ...rows,
-    '',
-    "> Results are shown as Critical/High counts. 'NE' indicates that the feature is Not Enabled for the repository.",
-  ].join('\n');
-}
+const environments = JSON.parse(readFileSync(join(__dirname, 'environments.json'), 'utf8'));
 
 // --- HTML builders ---
 
@@ -135,7 +46,7 @@ function buildCspHtml(results) {
   const rows = results.map(row => {
     const c = row.checks;
     const endpoint = `<a href="${row.url}" target="_blank">${row.endpoint}</a>`;
-    return `<tr>
+    return `<tr data-env="${row.envName}">
       ${cell(row.name)}${cell(row.envName)}${cell(endpoint)}${cell(statusHtml(row.status, row.error))}
       ${cell(fmtHtml(c.cspPresent))}${cell(fmtHtml(c.scriptSrcDefined))}
       ${cell(fmtHtml(c.noUnsafeInline))}${cell(fmtHtml(c.noUnsafeEval))}
@@ -158,7 +69,7 @@ function buildMfaHtml(results) {
   const headers = ['App', 'Env', 'Endpoint', 'Status', 'MFA Detected'];
   const rows = results.map(row => {
     const endpoint = `<a href="${row.url}" target="_blank">app</a>`;
-    return `<tr>
+    return `<tr data-env="${row.envName}">
       ${cell(row.name)}${cell(row.envName)}${cell(endpoint)}
       ${cell(statusHtml(row.status, row.error))}${cell(fmtHtml(row.mfaDetected))}
     </tr>`;
@@ -216,11 +127,13 @@ function buildHtml(today, cspData, mfaData, entries, summary) {
     .generated { color: #777; font-size: 0.875rem; margin-top: 0; margin-bottom: 2.5rem; }
     section { margin-bottom: 3rem; }
     h2 { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #444; border-bottom: 2px solid #e5e5e5; padding-bottom: 0.4rem; margin-bottom: 1rem; }
-    table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+    table { border-collapse: collapse; font-size: 0.78rem; }
     th { background: #f6f6f6; font-weight: 500; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #e0e0e0; white-space: nowrap; color: #444; }
     td { padding: 0.45rem 0.75rem; border: 1px solid #e0e0e0; }
+    td:first-child { white-space: nowrap; }
     tr:nth-child(even) td { background: #fafafa; }
-    td:nth-child(n+4) { text-align: center; }
+    td:not(:first-child) { text-align: center; }
+    th:not(:first-child) { text-align: center; }
     iconify-icon.icon { font-size: 1.1rem; vertical-align: middle; }
     iconify-icon.pass { color: #16a34a; }
     iconify-icon.fail { color: #dc2626; }
@@ -237,14 +150,31 @@ function buildHtml(today, cspData, mfaData, entries, summary) {
     .note { font-size: 0.78rem; color: #888; margin-top: 0.5rem; }
     a { color: #2563eb; text-decoration: none; }
     a:hover { text-decoration: underline; }
+    .env-toggle { display: inline-flex; background: #ebebeb; border-radius: 8px; padding: 3px; gap: 2px; margin-bottom: 2rem; }
+    .env-btn { border: none; background: transparent; padding: 5px 20px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.825rem; font-weight: 500; color: #666; transition: all 0.15s; }
+    .env-btn.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
   </style>
 </head>
 <body>
   <h1>Security Audit</h1>
   <p class="generated">Generated: ${today}</p>
+  <div class="env-toggle">
+    <button class="env-btn" data-filter="dev">Dev</button>
+    <button class="env-btn active" data-filter="prod">Prod</button>
+  </div>
   ${buildCspHtml(cspData)}
   ${buildMfaHtml(mfaData)}
   ${buildGithubHtml(entries, summary)}
+  <script>
+    const btns = document.querySelectorAll('.env-btn');
+    const rows = document.querySelectorAll('tr[data-env]');
+    function setFilter(env) {
+      btns.forEach(b => b.classList.toggle('active', b.dataset.filter === env));
+      rows.forEach(r => { r.style.display = r.dataset.env === env ? '' : 'none'; });
+    }
+    btns.forEach(b => b.addEventListener('click', () => setFilter(b.dataset.filter)));
+    setFilter('prod');
+  </script>
 </body>
 </html>`;
 }
@@ -254,34 +184,16 @@ function buildHtml(today, cspData, mfaData, entries, summary) {
 const today = new Date().toISOString().split('T')[0];
 
 console.log('Running CSP audit...');
-const cspData = await fetchCspData(urls);
+const cspData = await fetchCspData(environments);
 
 console.log('Running MFA audit...');
-const mfaData = await fetchMfaData(urls);
+const mfaData = await fetchMfaData(environments);
 
 console.log('Running GitHub security audit...');
-const { summary } = await fetchGithubData(urls);
-
-const report = [
-  '# Security Audit',
-  '',
-  `Generated: ${today}`,
-  '',
-  buildCspSection(cspData),
-  '',
-  '---',
-  '',
-  buildMfaSection(mfaData),
-  '',
-  '---',
-  '',
-  buildGithubSection(urls, summary),
-].join('\n');
+const { summary } = await fetchGithubData(environments);
 
 const outDir = join(__dirname, 'results');
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, `security-audit-${today}.md`), report);
-writeFileSync(join(outDir, `security-audit-${today}.html`), buildHtml(today, cspData, mfaData, urls, summary));
+writeFileSync(join(outDir, `security-audit-${today}.html`), buildHtml(today, cspData, mfaData, environments, summary));
 
-console.log(`\nReport: results/security-audit-${today}.md`);
-console.log(`        results/security-audit-${today}.html`);
+console.log(`\nReport: results/security-audit-${today}.html`);

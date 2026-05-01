@@ -40,7 +40,7 @@ Requires Node 18+.
 
 ## Configuration
 
-Each entry in `urls.json` represents one app:
+Each entry in `environments.json` represents one app:
 
 ```json
 {

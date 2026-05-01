@@ -120,9 +120,9 @@ function printRow(row) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const urls = JSON.parse(readFileSync(join(__dirname, 'urls.json'), 'utf8'));
+  const environments = JSON.parse(readFileSync(join(__dirname, 'environments.json'), 'utf8'));
   let currentGroup = null;
-  for (const row of await fetchCspData(urls)) {
+  for (const row of await fetchCspData(environments)) {
     const group = `${row.name} / ${row.envName}`;
     if (group !== currentGroup) {
       console.log(`\n${'─'.repeat(70)}`);
