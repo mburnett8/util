@@ -33,30 +33,34 @@ function statusHtml(code, error) {
   return `<span class="status-badge ${cls}">${code}</span>`;
 }
 
-function alertCellHtml(error, enabled, ...counts) {
+function alertCellHtml(error, enabled, url, ...counts) {
   if (error) return `${icon.err} <span class="err">ERR</span>`;
   if (!enabled) return `<span class="na">NE</span>`;
   const total = counts.reduce((a, b) => a + b, 0);
   const cls = total > 0 ? 'fail' : 'pass';
-  return `<span class="alert-count ${cls}">${counts.join('/')}</span>`;
+  const badge = `<span class="alert-count ${cls}">${counts.join('/')}</span>`;
+  return `<a href="${url}" target="_blank">${badge}</a>`;
 }
 
 function buildCspHtml(results) {
-  const headers = ['App', 'Endpoint', 'Status', 'CSP Present', 'default/script-src', 'No unsafe-inline', 'No unsafe-eval', 'frame-ancestors', 'CSOD Covered', 'No Wildcard *'];
-  const rows = results.map(row => {
+  const headers = ['App', 'Endpoint', 'Status', 'CSP Present', 'default/script-src', 'No unsafe-inline', 'No unsafe-eval', 'frame-ancestors', 'CSOD Covered', 'No Wildcard *', ''];
+  const rows = [...results].sort((a, b) => a.name.localeCompare(b.name)).map(row => {
     const c = row.checks;
     const endpoint = `<a href="${row.url}" target="_blank">${row.endpoint}</a>`;
+    const viewBtn = row.header
+      ? `<button class="csp-view-btn" data-header="${row.header.replaceAll('"', '&quot;')}"><iconify-icon icon="ph:eye"></iconify-icon></button>`
+      : '';
     return `<tr data-env="${row.envName}">
       ${cell(row.name)}${cell(endpoint)}${cell(statusHtml(row.status, row.error))}
       ${cell(fmtHtml(c.cspPresent))}${cell(fmtHtml(c.scriptSrcDefined))}
       ${cell(fmtHtml(c.noUnsafeInline))}${cell(fmtHtml(c.noUnsafeEval))}
       ${cell(fmtHtml(c.frameAncestorsDefined))}${cell(fmtHtml(c.csodCovered))}
-      ${cell(fmtHtml(c.noWildcard))}
+      ${cell(fmtHtml(c.noWildcard))}${cell(viewBtn)}
     </tr>`;
   }).join('\n');
 
   return `<section>
-  <h2>CSP Audit</h2>
+  <h2>Content Security Policy Header (CSP)</h2>
   <table>
     <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
     <tbody>${rows}</tbody>
@@ -67,7 +71,7 @@ function buildCspHtml(results) {
 
 function buildMfaHtml(results) {
   const headers = ['App', 'Endpoint', 'Status', 'MFA Detected'];
-  const rows = results.map(row => {
+  const rows = [...results].sort((a, b) => a.name.localeCompare(b.name)).map(row => {
     const endpoint = `<a href="${row.url}" target="_blank">app</a>`;
     return `<tr data-env="${row.envName}">
       ${cell(row.name)}${cell(endpoint)}
@@ -76,7 +80,7 @@ function buildMfaHtml(results) {
   }).join('\n');
 
   return `<section>
-  <h2>MFA Audit</h2>
+  <h2>MFA</h2>
   <table>
     <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
     <tbody>${rows}</tbody>
@@ -86,24 +90,25 @@ function buildMfaHtml(results) {
 }
 
 function buildGithubHtml(entries, summary) {
-  const headers = ['App', 'Repository', 'Dependabot Alerts', 'Code Scanning FE', 'Code Scanning BE'];
-  const rows = entries.filter(e => e.repo).map(e => {
+  const headers = ['App', 'Repository', 'Dependabot', 'Code Scanning FE', 'Code Scanning BE'];
+  const rows = [...entries].filter(e => e.repo).sort((a, b) => a.name.localeCompare(b.name)).map(e => {
     const data = summary[e.repo];
-    if (!data) return `<tr>${cell(e.name)}${cell(e.repo)}${cell(icon.na)}${cell(icon.na)}${cell(icon.na)}</tr>`;
+    const ghBase = `https://github.com/Intelladon-LLC/${e.repo}`;
+    if (!data) return `<tr>${cell(e.name)}<td class="left"><a href="${ghBase}" target="_blank">${e.repo}</a></td>${cell(icon.na)}${cell(icon.na)}${cell(icon.na)}</tr>`;
     const db = data.dependabot_alerts;
     const cs = data.codescanning_alerts;
     return `<tr>
-      ${cell(e.name)}${cell(e.repo)}
-      ${cell(alertCellHtml(db.error, db.enabled, db.critical, db.high))}
-      ${cell(alertCellHtml(cs.error, cs.enabled, cs.critical_fe, cs.high_fe))}
-      ${cell(alertCellHtml(cs.error, cs.enabled, cs.critical_be, cs.high_be))}
+      ${cell(e.name)}<td class="left"><a href="${ghBase}" target="_blank">${e.repo}</a></td>
+      ${cell(alertCellHtml(db.error, db.enabled, `${ghBase}/security/dependabot`, db.critical, db.high))}
+      ${cell(alertCellHtml(cs.error, cs.enabled, `${ghBase}/security/code-scanning`, cs.critical_fe, cs.high_fe))}
+      ${cell(alertCellHtml(cs.error, cs.enabled, `${ghBase}/security/code-scanning`, cs.critical_be, cs.high_be))}
     </tr>`;
   }).join('\n');
 
   return `<section>
   <h2>GitHub Security Alerts</h2>
   <table>
-    <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+    <thead><tr>${headers.map((h, i) => `<th${i === 1 ? ' class="left"' : ''}>${h}</th>`).join('')}</tr></thead>
     <tbody>${rows}</tbody>
   </table>
   <p class="note">Results are shown as Critical/High counts. NE = feature not enabled.</p>
@@ -134,6 +139,7 @@ function buildHtml(today, cspData, mfaData, entries, summary) {
     tr:nth-child(even) td { background: #fafafa; }
     td:not(:first-child) { text-align: center; }
     th:not(:first-child) { text-align: center; }
+    td.left, th.left { text-align: left; }
     iconify-icon.icon { font-size: 1.1rem; vertical-align: middle; }
     iconify-icon.pass { color: #16a34a; }
     iconify-icon.fail { color: #dc2626; }
@@ -153,6 +159,15 @@ function buildHtml(today, cspData, mfaData, entries, summary) {
     .env-toggle { display: inline-flex; background: #ebebeb; border-radius: 8px; padding: 3px; gap: 2px; margin-bottom: 2rem; }
     .env-btn { border: none; background: transparent; padding: 5px 20px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.825rem; font-weight: 500; color: #666; transition: all 0.15s; }
     .env-btn.active { background: #fff; color: #1a1a1a; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+    .csp-view-btn { border: none; background: none; cursor: pointer; color: #888; padding: 0 2px; font-size: 1rem; vertical-align: middle; line-height: 1; border-radius: 3px; }
+    .csp-view-btn:hover { color: #2563eb; }
+    .csp-view-btn.active { color: #2563eb; }
+    #csp-panel { position: absolute; background: #1e1e1e; color: #f0f0f0; border-radius: 7px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); z-index: 200; width: 560px; max-width: calc(100vw - 2rem); overflow: hidden; }
+    #csp-panel-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 6px; border-bottom: 1px solid #333; }
+    #csp-panel-label { font-size: 0.72rem; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+    #csp-panel-copy { border: none; background: #333; color: #ddd; font-size: 0.72rem; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-family: inherit; }
+    #csp-panel-copy:hover { background: #444; }
+    #csp-panel-body { padding: 10px 12px; font-size: 0.72rem; word-break: break-all; line-height: 1.6; white-space: normal; user-select: text; cursor: text; }
   </style>
 </head>
 <body>
@@ -174,6 +189,42 @@ function buildHtml(today, cspData, mfaData, entries, summary) {
     }
     btns.forEach(b => b.addEventListener('click', () => setFilter(b.dataset.filter)));
     setFilter('prod');
+
+    let activeBtn = null;
+    function closePanel() {
+      const p = document.getElementById('csp-panel');
+      if (p) p.remove();
+      if (activeBtn) { activeBtn.classList.remove('active'); activeBtn = null; }
+    }
+    function openPanel(btn) {
+      closePanel();
+      activeBtn = btn;
+      btn.classList.add('active');
+      const panel = document.createElement('div');
+      panel.id = 'csp-panel';
+      panel.innerHTML = \`<div id="csp-panel-toolbar"><span id="csp-panel-label">CSP Header</span><button id="csp-panel-copy">Copy</button></div><div id="csp-panel-body"></div>\`;
+      panel.querySelector('#csp-panel-body').textContent = btn.dataset.header;
+      panel.querySelector('#csp-panel-copy').addEventListener('click', e => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(btn.dataset.header);
+        e.target.textContent = 'Copied!';
+        setTimeout(() => { e.target.textContent = 'Copy'; }, 1500);
+      });
+      document.body.appendChild(panel);
+      const rect = btn.getBoundingClientRect();
+      const panelW = 560;
+      const left = Math.min(rect.left + window.scrollX, window.innerWidth + window.scrollX - panelW - 16);
+      panel.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      panel.style.left = Math.max(8, left) + 'px';
+    }
+    document.querySelectorAll('.csp-view-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        btn === activeBtn ? closePanel() : openPanel(btn);
+      });
+    });
+    document.addEventListener('click', closePanel);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanel(); });
   </script>
 </body>
 </html>`;

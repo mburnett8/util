@@ -17,8 +17,6 @@ const HEADERS = {
 
 const OUTPUT_DIR = join(__dirname, 'output', 'github');
 
-const CS_CATEGORIES_FE = new Set(['/language:javascript-typescript']);
-const CS_CATEGORIES_BE = new Set(['/language:python', '/language:actions']);
 
 function saveJson(name, data) {
   const path = join(OUTPUT_DIR, `${name}.json`);
@@ -54,6 +52,9 @@ function processDependabotAlerts(alerts) {
   return { critical, high, enabled: true, error: null };
 }
 
+const CS_CATEGORIES_FE = new Set(['/language:javascript-typescript']);
+const CS_CATEGORIES_BE = new Set(['/language:python', '/language:actions']);
+
 function countBySeverity(alerts, categorySet) {
   let critical = 0, high = 0;
   for (const alert of alerts) {
@@ -65,36 +66,21 @@ function countBySeverity(alerts, categorySet) {
   return { critical, high };
 }
 
-function buildCategories(alerts) {
-  const categories = {};
-  for (const alert of alerts) {
-    if (alert.state !== 'open') continue;
-    const cat = alert.most_recent_instance.category;
-    categories[cat] = (categories[cat] ?? 0) + 1;
-  }
-  return categories;
-}
-
 function processCodeScanningAlerts(alerts) {
   const err = apiError(alerts);
-  if (err === 'no analysis found') return { critical_fe: 0, high_fe: 0, critical_be: 0, high_be: 0, enabled: false, error: null, categories: {} };
-  if (err) return { critical_fe: 0, high_fe: 0, critical_be: 0, high_be: 0, enabled: true, error: err, categories: {} };
-
+  if (err === 'no analysis found') return { critical_fe: 0, high_fe: 0, critical_be: 0, high_be: 0, enabled: false, error: null };
+  if (err) return { critical_fe: 0, high_fe: 0, critical_be: 0, high_be: 0, enabled: true, error: err };
   const fe = countBySeverity(alerts, CS_CATEGORIES_FE);
   const be = countBySeverity(alerts, CS_CATEGORIES_BE);
-  return { critical_fe: fe.critical, high_fe: fe.high, critical_be: be.critical, high_be: be.high, enabled: true, error: null, categories: buildCategories(alerts) };
+  return { critical_fe: fe.critical, high_fe: fe.high, critical_be: be.critical, high_be: be.high, enabled: true, error: null };
 }
 
 export async function fetchGithubData(entries, useCache = false) {
   if (useCache) {
-    return {
-      summary: loadJson('security_summary'),
-      csCategories: loadJson('cs_categories'),
-    };
+    return { summary: loadJson('security_summary') };
   }
 
   const summary = {};
-  const csCategories = {};
 
   for (const entry of entries.filter(e => e.repo)) {
     process.stdout.write(`  ${entry.name} (${entry.repo})... `);
@@ -108,16 +94,12 @@ export async function fetchGithubData(entries, useCache = false) {
     const db = processDependabotAlerts(dbAlerts);
     const cs = processCodeScanningAlerts(csAlerts);
 
-    for (const [cat, count] of Object.entries(cs.categories)) {
-      csCategories[cat] = (csCategories[cat] ?? 0) + count;
-    }
-
     summary[entry.repo] = {
-      dependabot_alerts: { critical: db.critical, high: db.high, enabled: db.enabled },
+      dependabot_alerts: { critical: db.critical, high: db.high, enabled: db.enabled, error: db.error },
       codescanning_alerts: {
         critical_fe: cs.critical_fe, high_fe: cs.high_fe,
         critical_be: cs.critical_be, high_be: cs.high_be,
-        enabled: cs.enabled,
+        enabled: cs.enabled, error: cs.error,
       },
     };
 
@@ -125,9 +107,8 @@ export async function fetchGithubData(entries, useCache = false) {
   }
 
   saveJson('security_summary', summary);
-  saveJson('cs_categories', csCategories);
 
-  return { summary, csCategories };
+  return { summary };
 }
 
 // --- Standalone CLI ---
