@@ -42,12 +42,12 @@ function alertCellHtml(error, enabled, ...counts) {
 }
 
 function buildCspHtml(results) {
-  const headers = ['App', 'Env', 'Endpoint', 'Status', 'CSP Present', 'default/script-src', 'No unsafe-inline', 'No unsafe-eval', 'frame-ancestors', 'CSOD Covered', 'No Wildcard *'];
+  const headers = ['App', 'Endpoint', 'Status', 'CSP Present', 'default/script-src', 'No unsafe-inline', 'No unsafe-eval', 'frame-ancestors', 'CSOD Covered', 'No Wildcard *'];
   const rows = results.map(row => {
     const c = row.checks;
     const endpoint = `<a href="${row.url}" target="_blank">${row.endpoint}</a>`;
     return `<tr data-env="${row.envName}">
-      ${cell(row.name)}${cell(row.envName)}${cell(endpoint)}${cell(statusHtml(row.status, row.error))}
+      ${cell(row.name)}${cell(endpoint)}${cell(statusHtml(row.status, row.error))}
       ${cell(fmtHtml(c.cspPresent))}${cell(fmtHtml(c.scriptSrcDefined))}
       ${cell(fmtHtml(c.noUnsafeInline))}${cell(fmtHtml(c.noUnsafeEval))}
       ${cell(fmtHtml(c.frameAncestorsDefined))}${cell(fmtHtml(c.csodCovered))}
@@ -66,11 +66,11 @@ function buildCspHtml(results) {
 }
 
 function buildMfaHtml(results) {
-  const headers = ['App', 'Env', 'Endpoint', 'Status', 'MFA Detected'];
+  const headers = ['App', 'Endpoint', 'Status', 'MFA Detected'];
   const rows = results.map(row => {
     const endpoint = `<a href="${row.url}" target="_blank">app</a>`;
     return `<tr data-env="${row.envName}">
-      ${cell(row.name)}${cell(row.envName)}${cell(endpoint)}
+      ${cell(row.name)}${cell(endpoint)}
       ${cell(statusHtml(row.status, row.error))}${cell(fmtHtml(row.mfaDetected))}
     </tr>`;
   }).join('\n');

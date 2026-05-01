@@ -69,13 +69,13 @@ Code scanning alerts are bucketed into FE (`/language:javascript-typescript`) an
 
 One row per app/environment/endpoint. `—` means the check could not be evaluated (no CSP header present).
 
-| App | Env | Endpoint | Status | CSP Present | default/script-src | No unsafe-inline | No unsafe-eval | frame-ancestors | CSOD Covered | No Wildcard * |
+| App | Endpoint | Status | CSP Present | default/script-src | No unsafe-inline | No unsafe-eval | frame-ancestors | CSOD Covered | No Wildcard * |
 
 ### MFA Audit table
 
 One row per app/environment (app endpoint only).
 
-| App | Env | Endpoint | Status | MFA Detected |
+| App | Endpoint | Status | MFA Detected |
 
 MFA detection is a passive heuristic — implementations that only surface the second factor after the first credential step will not be detected.
 
